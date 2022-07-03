@@ -4,7 +4,7 @@ Visual wake word is a simple case where we have to detect the presence of a pers
   2. Mobile Net 
   3. Inception Net
   
-##Data Set Prepration 
+## Data Set Prepration 
  The dataset used in this case is actually drived from the MS coco 2014 dataset. Although it is a huge dataset  however we have used Yolov3 to divide images in to two classes named as 
  1. Person 
  2. No-Person
@@ -39,10 +39,30 @@ python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data locat
 example command 
 python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=infer --b_s=16 --e=100
 ```
+## Inception-Net
+In this section we will explain traning, testing and infrence steps for Inception Net. please follow the following commands 
+```
+cd ../Inception_NET/
+```
+### Traning 
+```
+python Inception-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train , test or infer> --b_s=< Batch size> --e=<epoch>
+example command 
+python Inception-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=train --b_s=16 --e=100
+```
+### Test 
+```
+python Inception-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train , test or infer> --b_s=< Batch size> --e=<epoch>
+example command 
+python Inception-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=test --b_s=16 --e=100
 
-
-
-
+```
+### Inference 
+```
+python Inception-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train , test or infer> --b_s=< Batch size> --e=<epoch>
+example command 
+python Inception-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=infer --b_s=16 --e=100
+```
 
 
 
