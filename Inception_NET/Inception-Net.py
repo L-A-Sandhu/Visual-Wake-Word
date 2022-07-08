@@ -24,6 +24,7 @@ import glob
 import cv2
 import os
 import argparse
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, accuracy_score
 
 
 
@@ -121,6 +122,7 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='MobileNetV2 Keras ') 
         parser.add_argument("--model_dir", type= str , default='./checkpoint/', help='path to the save or load the chekpoint')    
         parser.add_argument("--data", type= str, default='./data/', help='Dataset location')
+        parser.add_argument("--infer-data", type= str, default='./data/', help='data for infrence ')
         parser.add_argument("--inps", type= str, default='test', help='select test, train, infer')
         parser.add_argument("--b_s", type=int,default=32, help="Batch Size")
         parser.add_argument("--e", type=int,default=1, help="Epochs")
@@ -155,7 +157,8 @@ if __name__ == '__main__':
                       callbacks = [early_stop]
                    )
             A_L_Plot(history)
-
+            if not os.path.exists(directory):
+                os.mkdir(args.model_dir)
 
             #tf.saved_model.save(Model, "tmp_model")
             # Model.save('/tmp/model')?
@@ -170,100 +173,14 @@ if __name__ == '__main__':
                 save_traces=True,)
         if args.inps == 'test':
             M1=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
-            test_loss, test_acc = M1.evaluate(test_images, test_labels)
-            print('Test accuracy:', test_acc)
-        if args.inps =='infer':
-            M1=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
-            I,L=i_data_prep(img,label,class_names)
-            Inference_loss, Inference_acc = M1.evaluate(I, L)
-            print('Inference accuracy:', Inference_acc)    
-
-
-# # # Inception 
-
-# # In[14]:
-
-
-# INET=tf.keras.applications.inception_v3.InceptionV3(
-#     include_top=False,
-#     weights='imagenet',
-#     input_tensor=None,
-#     input_shape=(96,96,3),
-#     pooling=None,
-#     classes=len(class_names),
-#     classifier_activation='softmax'
-# )
-
-
-# # In[15]:
-
-
-# Model = tf.keras.Sequential()
-
-# #Model.add(layers.Conv2DTranspose(3,(1,1),strides=(3,3), input_shape=(32,32,3)))
-
-# Model.add(INET)
-# Model.add(layers.Flatten())
-# Model.add(layers.Dense(128, activation = 'relu')) #First hidden layer
-# Model.add(layers.Dense(128, activation = 'relu')) #Second hidden layer
-# Model.add(layers.Dropout(0.2)) #Third hidden layer
-# Model.add(layers.Dense(128, activation = 'relu')) #Fourth hidden layer
-# Model.add(layers.Dense(128, activation = 'relu')) #Fifth hidden layer
-# Model.add(layers.Dense(len(class_names), activation=tf.nn.softmax)) #Output layer
-
-
-
-# # In[16]:
-
-
-# #Once validation loss stops decreasing for three epochs in a row, end training
-# #This is to prevent overfiting
-# early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=30)
-# Model.compile(loss='categorical_crossentropy',
-#               optimizer='adam',
-#               metrics=['accuracy'])
-
-
-# # In[17]:
-
-
-# history = Model.fit(train_images, 
-#           train_labels,
-#           epochs=300,
-#           batch_size=32,
-#           verbose=1,
-#           validation_data=(test_images,test_labels),
-#           callbacks = [early_stop]
-#        )
-
-
-# # In[18]:
-
-
-# plt.plot(history.history['loss'])
-# plt.title('model loss')
-# plt.ylabel('loss function value on training data')
-# plt.xlabel('epoch')
-# plt.show()
-
-
-# # In[19]:
-
-
-# acc = history.history['accuracy']
-# val_acc = history.history['val_accuracy']
-# plt.plot(acc,label='Training Accuracy')
-# plt.plot(val_acc,label='Validation Accuracy')
-# plt.legend(loc='lower right')
-# plt.ylabel('Accuracy')
-# plt.title('Model Training and Validation Accuracy')
-# plt.xlabel('epoch')
-# plt.show()
-
-
-# # In[20]:
-
-
-# test_loss, test_acc = Model.evaluate(test_images, test_labels)
-# print('Test accuracy:', test_acc)
-
+            L_hat= M1.predict(test_images)
+            L_hat = np.argmax(L_hat, axis=1)
+            print(np.unique(L_hat))
+            test_labels1=np.argmax(test_labels,axis=1)
+            print(np.unique(L_hat))
+            print('precision:',precision_score(test_labels1,L_hat, average="macro"))
+            print('Recall:',recall_score(test_labels1,L_hat, average="macro"))
+            print('F1 Sore :', f1_score(test_labels1,L_hat, average="macro"))
+            print('Accuracy:', accuracy_score(test_labels1,L_hat))
+            print('confusion_matrix:',confusion_matrix(test_labels1,L_hat))
+        
