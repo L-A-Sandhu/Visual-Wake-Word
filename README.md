@@ -90,7 +90,7 @@ python Inception-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=tes
 ```
 
 ## Pretrained Model
-Orignally the keras framn work has trained Mobile and Inception Net implementations on image-net dataset. This work has fine tunned it on coustom dataset to find the exsisitance of a person with in an image. You can use this trained model by simpley downloading their checkpoints from the links given  below and placing them in side the folders **M0bile_Net** and **Inception_NET** respectively. 
+Orignally the keras fram work has trained Mobile and Inception Net implementations on image-net dataset. This work has fine tunned it on coustom dataset to find the exsisitance of a person with in an image. You can use this trained model by simpley downloading their checkpoints from the links given  below and placing them in side the folders **M0bile_Net** and **Inception_NET** respectively. 
 ```
 https://drive.google.com/file/d/1jJ4ZxF5q5tkrmgjVziXJhN3UD21470w9/view?usp=sharing
 https://drive.google.com/file/d/1vi4KFKIRsRQ_dkuU90EWfpKd4JxvjHO7/view?usp=sharing
