@@ -25,8 +25,8 @@ import cv2
 import os
 import argparse
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, accuracy_score
-
-
+import time
+from keras.callbacks import ModelCheckpoint
 
 # In[2]:
 
@@ -121,10 +121,10 @@ def A_L_Plot(history):
     plt.show()
 if __name__ == '__main__':
 
-
         parser = argparse.ArgumentParser(description='MobileNetV2 Keras ') 
         parser.add_argument("--model_dir", type= str , default='./checkpoint/', help='path to the save or load the chekpoint')    
         parser.add_argument("--data", type= str, default='./data/', help='Dataset location')
+        parser.add_argument("--infer-data", type= str, default='./data/', help='data for infrence ')
         parser.add_argument("--inps", type= str, default='test', help='select test, train, infer')
         parser.add_argument("--b_s", type=int,default=32, help="Batch Size")
         parser.add_argument("--e", type=int,default=1, help="Epochs")
@@ -135,15 +135,23 @@ if __name__ == '__main__':
         train_images,test_images,train_labels,test_labels=data_prep(img,label,class_names)
         #sample_plot(train_images,train_labels)
 
-        if args.inps == 'train' :
-            MobileNetV2 = MobileNetV2(include_top=False,
-                            input_shape=(96,96,3),
-                              weights="imagenet",
-                              classes=len(class_names),
-                                alpha=1.0,
-                               input_tensor=None)
-            Model=model_init(MobileNetV2,class_names)
-            early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=30)
+        if args.inps == 'tune' :
+            if not os.path.exists(args.model_dir):
+                os.makedirs(args.model_dir)
+                MobileNetV2 = MobileNetV2(include_top=False,
+                                input_shape=(96,96,3),
+                                  weights="imagenet",
+                                  classes=len(class_names),
+                                    alpha=1.0,
+                                   input_tensor=None)
+                Model=model_init(MobileNetV2,class_names)
+                early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=30)
+                checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+            else:
+                Model=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
+                early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=7)
+                checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+
             Model.compile(loss='categorical_crossentropy',
                           optimizer='adam',
                           metrics=['accuracy'])
@@ -153,26 +161,18 @@ if __name__ == '__main__':
                       batch_size=args.b_s,
                       verbose=1,
                       validation_data=(test_images,test_labels),
-                      callbacks = [early_stop]
+                      callbacks = [early_stop, checkpoint]
                    )
             A_L_Plot(history)
-
-
-            #tf.saved_model.save(Model, "tmp_model")
-            # Model.save('/tmp/model')?
-            tf.keras.models.save_model(
-                Model,
-                args.model_dir,
-                overwrite=True,
-                include_optimizer=True,
-                save_format=None,
-                signatures=None,
-                options=None,
-                save_traces=True,)
         if args.inps == 'test':
             M1=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
-            M1=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
+            [a,b,c,d]=(np.shape(test_images))
+            t=time.time()
             L_hat= M1.predict(test_images)
+            t=time.time()-t
+            v=t/a
+            print('latency:', v)
+            
             L_hat = np.argmax(L_hat, axis=1)
             print(np.unique(L_hat))
             test_labels1=np.argmax(test_labels,axis=1)
@@ -182,3 +182,51 @@ if __name__ == '__main__':
             print('F1 Sore :', f1_score(test_labels1,L_hat, average="macro"))
             print('Accuracy:', accuracy_score(test_labels1,L_hat))
             print('confusion_matrix:',confusion_matrix(test_labels1,L_hat))
+        if args.inps == 'train' :
+            if not os.path.exists(args.model_dir):
+                os.makedirs(args.model_dir)
+            MobileNetV2 = MobileNetV2(include_top=False,
+                            input_shape=(96,96,3),
+                              weights=None,
+                              classes=len(class_names),
+                                alpha=1.0,
+                               input_tensor=None)
+            Model=model_init(MobileNetV2,class_names)
+            early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=7)
+            checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+            Model.compile(loss='categorical_crossentropy',
+                          optimizer='adam',
+                          metrics=['accuracy'])
+            print(Model.summary())
+            history = Model.fit(train_images, 
+                      train_labels,
+                      epochs=args.e,
+                      batch_size=args.b_s,
+                      verbose=1,
+                      validation_data=(test_images,test_labels),
+                      callbacks = [early_stop, checkpoint]
+                   )
+            A_L_Plot(history)
+        
+        if args.inps  == 'resume':
+            if not os.path.exists(args.model_dir):
+                os.system('clear')
+                print('********************************************** no  check point  found ********************************************** ')
+            else:
+                Model=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
+                early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=7)
+                checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+                os.system('clear')
+                print('************************ Resuming Traning from check point************************')
+                history = Model.fit(train_images, 
+                          train_labels,
+                          epochs=args.e,
+                          batch_size=args.b_s,
+                          verbose=1,
+                          validation_data=(test_images,test_labels),
+                          callbacks = [early_stop,checkpoint]
+                       )
+                A_L_Plot(history)
+
+
+

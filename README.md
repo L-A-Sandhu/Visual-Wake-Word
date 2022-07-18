@@ -1,5 +1,5 @@
 # Visual-Wake-Word
-Visual wake word is a simple case where we have to detect the presence of a person inside an image frame. Please clone the rpo using the following commands 
+Visual wake word is a simple case where we have to detect the presence of a person inside an image frame. Please clone the repo using the following commands 
 ```
 git clone https://github.com/L-A-Sandhu/Visual-Wake-Word.git
 ```
@@ -52,41 +52,66 @@ python detect.py --source <data-set path> --resize=96
 Now you can see new folder name **data** inside the main repository.
 ## Fine Tunning 
 The keras implementation of Mobile and Inception Net trained these models imagenet dataset. However, to train these model on coustom data set we may use transfer learning . In the comming section we be explaining the training and testing of Mobile and well as Inception Net.
-### Mobile Net
-In this section we will explain traning and testing steps for Mobile Net. please follow the following commands 
+### Mobile NetT
+his section explains fine tunning , traning, testing and resuming the stopped tranning steps for Mobile Net. please follow the following commands 
 ```
 cd../M0bile_Net/
 ```
-#### Traning 
+#### Tuning
 ```
-python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train or test > --b_s=< Batch size> --e=<epoch>
+python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<tune> --b_s=< Batch size> --e=<epoch>
 example command 
-python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=train --b_s=16 --e=100
+python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=tune --b_s=16 --e=100
 ```
-#### Test 
+#### Testing  
 ```
-python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train , test or infer> --b_s=< Batch size> --e=<epoch>
+python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<test> --b_s=< Batch size> --e=<epoch>
 example command 
 python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=test
 ````
+#### Training 
+```
+python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train > --b_s=< Batch size> --e=<epoch>
+example command 
+python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=train --b_s=16 --e=100
+```
+### Resume
+```
+
+python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<resume> --b_s=< Batch size> --e=<epoch>
+example command 
+python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=resume --b_s=16 --e=100
+```
 
 ### Inception-Net
 In this section we will explain traning and testing steps for Inception Net. please follow the following commands 
 ```
 cd ../Inception_NET/
 ```
-#### Traning 
+#### Tuning
 ```
-python Inception-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train , test or infer> --b_s=< Batch size> --e=<epoch>
+python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<tune> --b_s=< Batch size> --e=<epoch>
 example command 
-python Inception-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=train --b_s=16 --e=100
+python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=tune --b_s=16 --e=100
 ```
-#### Test 
+#### Testing  
 ```
-python Inception-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train , test or infer> --b_s=< Batch size> --e=<epoch>
+python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<test> --b_s=< Batch size> --e=<epoch>
 example command 
-python Inception-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=test 
+python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=test
+````
+#### Training 
+```
+python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<train > --b_s=< Batch size> --e=<epoch>
+example command 
+python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=train --b_s=16 --e=100
+```
+### Resume
+```
 
+python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<resume> --b_s=< Batch size> --e=<epoch>
+example command 
+python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=resume --b_s=16 --e=100
 ```
 
 ## Pretrained Model
@@ -101,10 +126,10 @@ https://drive.google.com/file/d/1vi4KFKIRsRQ_dkuU90EWfpKd4JxvjHO7/view?usp=shari
 ## Results and Comparisons 
 The comparision between Mobile and Inception Net is shown in the following table 
 
-| Model         | Percision | Recall | F1-Sore | Accuracy | Size on disk(MB) |
-|---------------|-----------|--------|---------|----------|------------------|
-| Inception-Net | 0.77      | 0.74   | 0.72    | 0.72     | 273.0            |
-| Mobile-Net    | 0.75      | 0.74   | 0.74    | 0.75     | 49.8             |
+| Model         | Parameter | Latency| Accuracy| Size on disk(MB) |
+|---------------|-----------|--------|---------|------------------|
+| Inception-Net | 22,114,850|0.00138 | 0.72    | 273.0            |
+| Mobile-Net    | 3,,782,466|0.00091 | 0.74    | 49.8             |
 
 Confusion matix for Mobile Net 
 

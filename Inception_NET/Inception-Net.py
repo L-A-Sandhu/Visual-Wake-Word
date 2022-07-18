@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# #### Import relevant modules
-
-# In[1]:
-
-
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
@@ -25,7 +17,8 @@ import cv2
 import os
 import argparse
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, accuracy_score
-
+from keras.callbacks import ModelCheckpoint
+import time 
 
 
 # In[2]:
@@ -82,7 +75,7 @@ def sample_plot(train_images, train_labels):
         plt.xlabel(class_names[index])
         plt.savefig("Samples from Dataset.png")
 
-def model_init(INET):  
+def model_init(INET, class_names):  
     Model = tf.keras.Sequential()
     Model.add(INET)
     Model.add(layers.Flatten())
@@ -133,47 +126,57 @@ if __name__ == '__main__':
         train_images,test_images,train_labels,test_labels=data_prep(img,label,class_names)
         #sample_plot(train_images,train_labels)
 
-        if args.inps == 'train' :
-            INET=tf.keras.applications.inception_v3.InceptionV3(
-                                                                include_top=False,
-                                                                weights='imagenet',
-                                                                input_tensor=None,
-                                                                input_shape=(96,96,3),
-                                                                pooling=None,
-                                                                classes=len(class_names),
-                                                                classifier_activation='softmax'
-                                                                )
-            Model=model_init(INET)
-            early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=30)
-            Model.compile(loss='categorical_crossentropy',
-                          optimizer='adam',
-                          metrics=['accuracy'])
+        if args.inps == 'tune' :
+            if not os.path.exists(args.model_dir):
+                os.makedirs(args.model_dir)
+                INET=tf.keras.applications.inception_v3.InceptionV3(
+                                                                    include_top=False,
+                                                                    weights='imagenet',
+                                                                    input_tensor=None,
+                                                                    input_shape=(96,96,3),
+                                                                    pooling=None,
+                                                                    classes=len(class_names),
+                                                                    classifier_activation='softmax'
+                                                                    )
+                Model=model_init(INET,class_names)
+                early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=30)
+                checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+
+                Model.compile(loss='categorical_crossentropy',
+                              optimizer='adam',
+                              metrics=['accuracy'])
+            else:
+                Model=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
+                early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=7)
+                checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+            
+
+
+
+            os.system('clear')
+            print('************************ Fine tuning ************************')
+            print(Model.summary())
             history = Model.fit(train_images, 
                       train_labels,
                       epochs=args.e,
                       batch_size=args.b_s,
                       verbose=1,
                       validation_data=(test_images,test_labels),
-                      callbacks = [early_stop]
+                      callbacks = [early_stop, checkpoint]
                    )
             A_L_Plot(history)
-            if not os.path.exists(directory):
-                os.mkdir(args.model_dir)
-
-            #tf.saved_model.save(Model, "tmp_model")
-            # Model.save('/tmp/model')?
-            tf.keras.models.save_model(
-                Model,
-                args.model_dir,
-                overwrite=True,
-                include_optimizer=True,
-                save_format=None,
-                signatures=None,
-                options=None,
-                save_traces=True,)
+            
         if args.inps == 'test':
+            os.system('clear')
+            print('************************ testing ************************')
+
             M1=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
+            [a,b,c,d]=(np.shape(test_images))
+            t=time.time()
             L_hat= M1.predict(test_images)
+            t=time.time()-t
+            v=t/a
+            print('latency:', v)
             L_hat = np.argmax(L_hat, axis=1)
             print(np.unique(L_hat))
             test_labels1=np.argmax(test_labels,axis=1)
@@ -183,4 +186,59 @@ if __name__ == '__main__':
             print('F1 Sore :', f1_score(test_labels1,L_hat, average="macro"))
             print('Accuracy:', accuracy_score(test_labels1,L_hat))
             print('confusion_matrix:',confusion_matrix(test_labels1,L_hat))
-        
+
+        if args.inps == 'train':
+
+            if not os.path.exists(args.model_dir):
+                os.makedirs(args.model_dir)
+
+            INET=tf.keras.applications.inception_v3.InceptionV3(
+                                                                include_top=False,
+                                                                weights=None,
+                                                                input_tensor=None,
+                                                                input_shape=(96,96,3),
+                                                                pooling=None,
+                                                                classes=len(class_names),
+                                                                classifier_activation='softmax'
+                                                                )
+            Model = model_init(INET, class_names)
+            early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=7)
+            checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+
+            Model.compile(loss='categorical_crossentropy',
+                          optimizer='adam',
+                          metrics=['accuracy'])
+            os.system('clear')
+            print('************************ Traning from Scratch************************')
+            history = Model.fit(train_images, 
+                      train_labels,
+                      epochs=args.e,
+                      batch_size=args.b_s,
+                      verbose=1,
+                      validation_data=(test_images,test_labels),
+                      callbacks = [early_stop,checkpoint]
+                   )
+            A_L_Plot(history)
+
+        if args.inps  == 'resume':
+
+
+            if not os.path.exists(args.model_dir):
+                os.system('clear')
+                print('********************************************** no  check point  found ********************************************** ')
+            else:
+                Model=tf.keras.models.load_model(args.model_dir, custom_objects=None, compile=True, options=None)
+                early_stop = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=7)
+                checkpoint = ModelCheckpoint(args.model_dir, monitor='loss', verbose=1, save_best_only=True, mode='min')
+                os.system('clear')
+                print('************************ Resuming Traning from check point************************')
+                history = Model.fit(train_images, 
+                          train_labels,
+                          epochs=args.e,
+                          batch_size=args.b_s,
+                          verbose=1,
+                          validation_data=(test_images,test_labels),
+                          callbacks = [early_stop,checkpoint]
+                       )
+                A_L_Plot(history)
+
