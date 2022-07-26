@@ -65,7 +65,7 @@ python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=tune -
 ```
 #### Testing  
 ```
-python <Mobile-Net.py or Inception_NET>  --model_dir=<Location for saving model> --data=<data location> --inp=<test> --b_s=< Batch size> --e=<epoch>
+python <Mobile-Net.py or Inception_NET>  --model_dir=<Location for saving model> --data=<data location> --inp=<test> 
 example command 
 python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=test
 ````
