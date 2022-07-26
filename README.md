@@ -95,10 +95,11 @@ https://drive.google.com/file/d/1vi4KFKIRsRQ_dkuU90EWfpKd4JxvjHO7/view?usp=shari
 ## Results and Comparisons 
 The comparision between Mobile and Inception Net is shown in the following table 
 
-| Model         | Parameter | Latency| Accuracy| Size on disk(MB) |
-|---------------|-----------|--------|---------|------------------|
-| Inception-Net | 22,114,850|0.00138 | 0.72    | 273.0            |
-| Mobile-Net    | 3,,782,466|0.00091 | 0.74    | 49.8             |
+| Model         | Parameter | Latency| Accuracy| Size on disk(MB) | FLops |
+|---------------|-----------|--------|---------|------------------|-------|
+| Inception-Net | 22,114,850|0.00138 | 0.72    | 273.0            |0.681 G|
+| Mobile-Net    | 3,,782,466|0.00091 | 0.74    | 49.8             |0.116 G|
+
 
 Confusion matix for Mobile Net 
 
