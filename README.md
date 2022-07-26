@@ -51,67 +51,36 @@ python detect.py --source <data-set path> --resize=96
 ```
 Now you can see new folder name **data** inside the main repository.
 ## Fine Tunning 
-The keras implementation of Mobile and Inception Net trained these models imagenet dataset. However, to train these model on coustom data set we may use transfer learning . In the comming section we be explaining the training and testing of Mobile and well as Inception Net.
-### Mobile NetT
-his section explains fine tunning , traning, testing and resuming the stopped tranning steps for Mobile Net. please follow the following commands 
+The keras implementation of Mobile and Inception Net trained these models imagenet dataset. However, to train these model on coustom data set we may use transfer learning . In the comming section we be explaining the training and testing of Mobile and well and Incepion Ne.
+
 ```
-cd../M0bile_Net/
+cd../<M0bile_Net or Inception_NET>/
+
 ```
 #### Tuning
 ```
-python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<tune> --b_s=< Batch size> --e=<epoch>
+python <Mobile-Net.py or Inception_NET>  --model_dir=<Location for saving model> --data=<data location> --inp=<tune> --b_s=< Batch size> --e=<epoch>
 example command 
 python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=tune --b_s=16 --e=100
 ```
 #### Testing  
 ```
-python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<test> --b_s=< Batch size> --e=<epoch>
+python <Mobile-Net.py or Inception_NET>  --model_dir=<Location for saving model> --data=<data location> --inp=<test> --b_s=< Batch size> --e=<epoch>
 example command 
 python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=test
 ````
 #### Training 
 ```
-python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<train > --b_s=< Batch size> --e=<epoch>
+python <Mobile-Net.py or Inception_NET>  --model_dir=<Location for saving model> --data=<data location> --inp=<train > --b_s=< Batch size> --e=<epoch>
 example command 
 python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=train --b_s=16 --e=100
 ```
 ### Resume
 ```
-
-python Mobile-Net.py  --model_dir=<Location for saving model> --data=<data location> --inp=<resume> --b_s=< Batch size> --e=<epoch>
+python <Mobile-Net.py or Inception_NET>  --model_dir=<Location for saving model> --data=<data location> --inp=<resume> --b_s=< Batch size> --e=<epoch>
 example command 
 python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=resume --b_s=16 --e=100
-```
 
-### Inception-Net
-In this section we will explain traning and testing steps for Inception Net. please follow the following commands 
-```
-cd ../Inception_NET/
-```
-#### Tuning
-```
-python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<tune> --b_s=< Batch size> --e=<epoch>
-example command 
-python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=tune --b_s=16 --e=100
-```
-#### Testing  
-```
-python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<test> --b_s=< Batch size> --e=<epoch>
-example command 
-python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=test
-````
-#### Training 
-```
-python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<train > --b_s=< Batch size> --e=<epoch>
-example command 
-python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=train --b_s=16 --e=100
-```
-### Resume
-```
-
-python Inception-Net.py --model_dir=<Location for saving model> --data=<data location> --inp=<resume> --b_s=< Batch size> --e=<epoch>
-example command 
-python Mobile-Net.py  --model_dir='./checkpoint/' --data='../data/' --inp=resume --b_s=16 --e=100
 ```
 
 ## Pretrained Model
